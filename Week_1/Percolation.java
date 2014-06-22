@@ -14,8 +14,12 @@ union(), find(), connected(), and count().
             if (N <= 0) { throw new IllegalArgumentException(); }           
             else {               
                 this.size = N;
-                this.grid = new boolean[N^2 + 2];
-                this.unf = new WeightedQuickUnionUF(N);
+                this.grid = new boolean[(int) Math.pow(N, 2.0) + 2];
+                for (int i = 0; i < grid.length; i++) {
+                    grid[i] = false;
+                    
+                }
+                this.unf = new WeightedQuickUnionUF((int) Math.pow(N, 2.0) + 2);
                 
                 // open virtual sites
                 this.grid[0] = true;
@@ -48,6 +52,7 @@ union(), find(), connected(), and count().
 
                // connect lower cell
                if (i == this.size) {
+                   
                    unf.union(index, this.grid.length-1);
                }
                else {
@@ -73,7 +78,7 @@ union(), find(), connected(), and count().
            if (i <= 0 || j <= 0 || i > this.size || j > this.size) 
                 { throw new IndexOutOfBoundsException(); } 
            else {
-               int index = (i-1) * size + j; 
+               int index = (i-1) * this.size + j; 
                return this.grid[index];
            }           
        }    
@@ -83,29 +88,34 @@ union(), find(), connected(), and count().
            if (i <= 0 || j <= 0 || i > this.size || j > this.size) 
                 { throw new IndexOutOfBoundsException(); } 
            else {
+
                // check connection in union
-               
+               int index = (i-1) * this.size + j; 
+               return this.unf.connected(index, 0);
            } 
-           return true;
+           
        }
        
        // does the system percolate?
        public boolean percolates()  {
            // check whether virtual sites are connected in union
-           return true;
+           return this.unf.connected(this.grid.length - 1, 0);
        }  
        
+       
+        private int size; // N
+        
         private boolean[] grid; // holds information whether site is open
         /*
                   0        *       // vitrual site #1
+                 1-5   * * * * *
+                 6-10  * * * * *  (i-1) * size + j; 
                        * * * * *
-                       * * * * * 
                        * * * * *
                        * * * * *
-                       * * * * *
-               N^2 + 1  `  *     // virtual site #2
-        length N^2 + 2
+          26   N^2 + 1  `  *     // virtual site #2
+        length N^2 + 2 (27)
         */
-        private int size; // N
+        
         private WeightedQuickUnionUF unf; // UF instance to hold connection information
     }
