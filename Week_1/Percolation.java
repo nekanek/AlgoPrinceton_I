@@ -14,6 +14,7 @@ union(), find(), connected(), and count().
             if (N <= 0) { throw new IllegalArgumentException(); }           
             else {               
                 this.size = N;
+                this.percolates = false;
                 this.grid = new boolean[(int) Math.pow(N, 2.0) + 2];
                 for (int i = 0; i < grid.length; i++) {
                     grid[i] = false;
@@ -50,16 +51,7 @@ union(), find(), connected(), and count().
                    }
                }
 
-               // connect lower cell
-               if (i == this.size) {
-                   
-                   unf.union(index, this.grid.length-1);
-               }
-               else {
-                   if (this.grid[(i) * size + j]) {
-                       unf.union(index, (i) * size + j);
-                   }
-               }               
+              
                
                // connect left cell
                if (j != 1 && this.grid[index-1]) {
@@ -70,6 +62,19 @@ union(), find(), connected(), and count().
                if (j != this.size && this.grid[index+1]) {
                    unf.union(index, index+1);
                }
+               
+               // connect lower cell
+               if (i == this.size) {
+                   if (!this.percolates()) {
+                       unf.union(index, this.grid.length-1);
+                   }
+                   
+               }
+               else {
+                   if (this.grid[(i) * size + j]) {
+                       unf.union(index, (i) * size + j);
+                   }
+               }                
            }
        }       
        
@@ -84,22 +89,28 @@ union(), find(), connected(), and count().
        }    
        
         // is site (row i, column j) full?
-       public boolean isFull(int i, int j) {
-           if (i <= 0 || j <= 0 || i > this.size || j > this.size) 
+        public boolean isFull(int i, int j) {
+            if (i <= 0 || j <= 0 || i > this.size || j > this.size) 
                 { throw new IndexOutOfBoundsException(); } 
-           else {
+            else {
 
                // check connection in union
                int index = (i-1) * this.size + j; 
                return this.unf.connected(index, 0);
-           } 
+            } 
            
-       }
+        }
        
        // does the system percolate?
        public boolean percolates()  {
            // check whether virtual sites are connected in union
-           return this.unf.connected(this.grid.length - 1, 0);
+           
+           if ( this.unf.connected(this.grid.length - 1, 0 )) {
+               this.percolates = true;
+               
+           }
+           return this.percolates;
+           
        }  
        
        
@@ -118,4 +129,5 @@ union(), find(), connected(), and count().
         */
         
         private WeightedQuickUnionUF unf; // UF instance to hold connection information
+        private boolean percolates;
     }
