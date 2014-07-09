@@ -17,7 +17,7 @@ public class Deque<Item> implements Iterable<Item> {
     private class Node {
         private Item item;
         private Node next;
-        // private Node previous;  // in order to achieve constant time, should use doubly linked lists
+        private Node previous;  // in order to achieve constant time, should use doubly linked lists
         Node() {
             this(null);
         }
@@ -28,7 +28,7 @@ public class Deque<Item> implements Iterable<Item> {
             else {            
                 this.item = item;
                 this.next = null;
-        //        this.previous = null;
+                this.previous = null;
             }
         }
     }
@@ -54,14 +54,14 @@ public class Deque<Item> implements Iterable<Item> {
             }
             else {
                 this.last.next = input;
-            //    input.previous = this.last; //
+                input.previous = this.last; //
                 this.last = input;
             }
             this.N++;        
         }
     }
     
-    void addFirst(Item item) {
+    public void addFirst(Item item) {
         if (item == null) {
             throw new NullPointerException();
         }
@@ -73,7 +73,7 @@ public class Deque<Item> implements Iterable<Item> {
             }
             else {
                 input.next = this.first;
-            //    this.first.previous = input; //
+                this.first.previous = input; //
                 this.first = input;
             }
             this.N++;          
@@ -86,7 +86,14 @@ public class Deque<Item> implements Iterable<Item> {
         }
         else {
             Node output = first;
-            first = first.next;
+            if (N == 1) {
+                first = null;
+                last = null;
+            }
+            else {
+                first.next.previous = null;
+                first = first.next;
+            }
             this.N--;
             return output.item;
         }
@@ -104,11 +111,8 @@ public class Deque<Item> implements Iterable<Item> {
                 this.first = null;
             }
             else {
-                Node lastNode = first;
-                while (lastNode.next != last) {
-                    lastNode = lastNode.next;
-                }
-                this.last = lastNode;
+                last.previous.next = null;
+                last = last.previous;
             }
             this.N--;
             return output.item;
