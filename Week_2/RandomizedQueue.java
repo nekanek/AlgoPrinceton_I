@@ -1,7 +1,8 @@
-
+import java.util.*;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
+@SuppressWarnings("unchecked")
 public class RandomizedQueue<Item> implements Iterable<Item> {
     private Item[] items;    
     private int N; // last element of the array
@@ -17,7 +18,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     }    
    
     public int size() {                       // return the number of items on the queue
-        return N+1;
+        return N + 1;
     }
    
     private void resize() {
@@ -38,8 +39,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
     }
     public void enqueue(Item item) {          // add the item to the end
+        if (item == null) {
+            throw new NullPointerException();
+        }
+        
         resize();
-        items[++N] = item;
+        N += 1;
+        items[N] = item;
     }
    
     public Item dequeue() {                   // delete and return a random item
@@ -49,19 +55,22 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         else {
             int number = StdRandom.uniform(N+1);
             Item output = (Item)items[number];
-            items[number] = items[N--];
+            items[number] = items[N];
+            items[N] = null;
+            N -= 1;
             resize();
             return output;
         }
     }
    
     public Item sample() {                    // return (but do not delete) a random item
-        if (N == 0) {
+        if (N == -1) {
             throw new java.util.NoSuchElementException();
         }
         else {
             int number = StdRandom.uniform(N+1);
-            return items[number];
+            Item output = items[number];
+            return output;
         }    
     }
    
@@ -70,9 +79,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         return new ListIterator();
     }
 
-
     private class ListIterator implements Iterator<Item> {
-        int left = N; // number of items left to iterate through
+        int left; // number of items left to iterate through
+        Item[] itemsCopy;
+        
+        public ListIterator() {
+            left = N; 
+            itemsCopy = (Item[]) Arrays.copyOf(items, items.length);
+        }
         
         @Override
         public boolean hasNext()  { 
@@ -89,9 +103,9 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             if (!hasNext()) throw new NoSuchElementException();
             else {
                 int number = StdRandom.uniform(left+1);
-                Item current = items[number];    
-                items[number] = items[left];
-                items[left] = current;
+                Item current = itemsCopy[number];    
+                itemsCopy[number] = itemsCopy[left];
+                itemsCopy[left] = current;
                 left--;
                 return current;
             }
@@ -126,6 +140,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         System.out.println("..dequeing:");
         while (!intsDeque.isEmpty()) {
             System.out.println(intsDeque.dequeue());
-        }   
+        }
+//        int S = 5;
+//        for (int i = 0; i < 100; i++) {
+//            System.out.print(StdRandom.uniform(S+1) + " ");
+//        }
+//        System.out.println();   
     }
 }
